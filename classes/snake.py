@@ -1,2 +1,3 @@
-import graphics
+import graphics as gr
+
 
