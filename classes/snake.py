@@ -28,12 +28,13 @@ class Snake:
     def change_move(self, move_direction):
         self._move_direction = move_direction
 
-    def move(self):
+    def move(self, delete_last = False):
         next_step = self.get_next_step()
         self._Points.insert(0, next_step)
-        del self._Points[-1]
+        if delete_last:
+            del self._Points[-1]
+    
+    def rise(self):
+        self.move(True)
 
     
-
-
-
