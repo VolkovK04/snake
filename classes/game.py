@@ -18,10 +18,12 @@ class Game:
     def __init__(self, snakes: list[Snake]):
         self.map = [[Cell.Empty for _ in range(MAP_SIZE)] for _ in range(MAP_SIZE)]
         self.snakes = snakes
-        self.timer = Timer()
+        self.timer = Timer(function=self.update, interval=1)
 
-    def start(self):
+    def setup(self):
+        pass
 
+    def update(self):
         pass
 
     def next(self):
