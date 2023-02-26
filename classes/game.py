@@ -24,9 +24,6 @@ class Game:
         pass
 
     def update(self):
-        pass
-
-    def next(self):
         for snake in self.snakes:
             self.move_snake(snake)
 
