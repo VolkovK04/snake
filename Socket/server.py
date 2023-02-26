@@ -4,7 +4,7 @@ import time
 
 MAX_CLIENTS = 10
 
-class MyServer:
+class Server:
 
     def __init__(self) -> None:
         self._Host = sock.gethostbyname(sock.gethostname())
@@ -28,7 +28,7 @@ class MyServer:
             #поток на обработку сообщений от клиентов и отправку данных (хэндлер)
 
 
-    def server_run(self):
+    def run_server(self):
         timeout = 3
 
         connections_thread = Thread(target=self.get_conn)
@@ -50,6 +50,12 @@ class MyServer:
             #---------------------
             #сделать чтото игровое
             #---------------------
+            print(f"Data recieved from {address}:", data)
 
+    def send_game_field(self):
+        data = "game field sent".encode("utf-8")
+        for connection in self.active_connections:
+            clientsocket, addr = connection
+            clientsocket.send(data)
 
 
