@@ -26,6 +26,7 @@ class Snake:
                 return Point(head.x, head.y + 1)
             case Direction.Left:
                 return Point(head.x - 1, head.y)
+        return head
             
     def change_move(self, new_direction):
         self.direction = new_direction

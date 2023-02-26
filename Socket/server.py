@@ -1,8 +1,14 @@
 from threading import Thread
 import socket as sock
 import time
+from classes.game import Game
 
 MAX_CLIENTS = 10
+
+CONNECTION_AWAITING = 30
+FRAME_TIME = 1 #second
+
+STOP_SERVER = False
 
 class Server:
 
@@ -15,8 +21,8 @@ class Server:
 
         self.s.listen(MAX_CLIENTS)
 
-        self.active_connections = []
-        self.all_connections = []
+        self.active_connections: list[tuple[sock.socket, sock._RetAddress]] = []
+        self.all_connections: list[tuple[sock.socket, sock._RetAddress]] = []
         self.client_threads: list[Thread] = []
 
     def get_conn(self):
@@ -29,33 +35,49 @@ class Server:
 
 
     def run_server(self):
-        timeout = 3
-
         connections_thread = Thread(target=self.get_conn)
         connections_thread.start()
 
-        time.sleep(timeout)
+        time.sleep(CONNECTION_AWAITING)
+
         self.active_connections = self.all_connections.copy()
+
+        self.game = Game(len(self.active_connections))
+        self.game.start()
+        self.send_id()
+        
+        self.send_game_field()
 
         for client_thread in self.client_threads:
             client_thread.start()
 
-        #-------------------------
-        #здесь тоже игровая логика
-        #-------------------------
+        #сервер отправляет карту клиентам
+        while not STOP_SERVER:
+            #фрейм игры
+            self.game.update()
+            self.send_game_field()
+            time.sleep(FRAME_TIME)
+
 
     def handle_client(self, clientsocket: sock.socket, address):
+        #сервер получает данные с клиентов и обрабатывает их
         while True:
-            data = clientsocket.recv(1024).decode("utf-8")
-            #---------------------
-            #сделать чтото игровое
-            #---------------------
-            print(f"Data recieved from {address}:", data)
+            data = clientsocket.recv(1024).decode("utf-8") #id move_direction
+
+            player_id, move_direction = data.split()
+            self.game.snakes[int(player_id)].change_move(move_direction)
+
+            #print(f"Data recieved from {address}:", data)
 
     def send_game_field(self):
-        data = "game field sent".encode("utf-8")
+        data = self.game.map_to_bytes()
         for connection in self.active_connections:
             clientsocket, addr = connection
-            clientsocket.send(data)
+            clientsocket.sendall(data)
 
-
+    def send_id(self):
+        snakes_id = list(self.game.snakes.keys())
+        for i in range(len(snakes_id)):
+            clientsocket = self.active_connections[i][0]
+            byte_id = str(snakes_id[i]).encode("utf-8")
+            clientsocket.sendall(byte_id)
