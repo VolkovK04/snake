@@ -6,7 +6,7 @@ import time
 MAX_PLAYERS = 10
 
 
-def get_conn(serv: socket.socket, connections: list, flag=True):
+def get_conn(serv: socket.socket, connections: list):
     while True:
         connections.append(serv.accept())
 
@@ -24,11 +24,10 @@ def main():
     serv.listen(MAX_PLAYERS)
 
     conns = []
-    flag = True
-    thread = Thread(target=get_conn, args=(serv, conns, flag))
+    
+    thread = Thread(target=get_conn, args=(serv, conns))
     thread.start()
     time.sleep(1)
-    event.set()
     thread.join()
 
     print(conns)
