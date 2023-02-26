@@ -1,5 +1,6 @@
 from enum import Enum
 from point import Point
+from player import Player
 from snake import Snake, Direction
 import time
 from random import randrange
@@ -14,20 +15,24 @@ class Cell(Enum):
 
 MAP_SIZE = 30
 WALL_SIZE = 5
-FOOD_COUNT = 10
+ALL_FOOD_COUNT = 10
 SNAKE_SPAWN_SIZE = 4
+
+SQUARE_WALL_COUNT_MAX = 5
+STRAIGHT_WALL_COUNT_MAX = 10
+SINGLE_WALL_COUNT_MAX = 15
 
 
 class Game:
     def __init__(self, snakes_count: int):
-        self.map = [[Cell.Empty for _ in range(MAP_SIZE)] for _ in range(MAP_SIZE)]
-        self.snakes = []
+        self.snakes: dict[int, Snake] = {}
         self.snakes_count = snakes_count
 
     def start(self):
+        self.map = [[Cell.Empty for _ in range(MAP_SIZE)] for _ in range(MAP_SIZE)]
         self.generate_walls()
         self.spawn_snakes()
-        self.generate_food(FOOD_COUNT)
+        self.generate_food(ALL_FOOD_COUNT)
 
     def spawn_snakes(self):
         spawn_positions = []
@@ -44,12 +49,14 @@ class Game:
         for k in range(self.snakes_count):
             position = spawn_positions[randrange(len(spawn_positions))]
             spawn_positions.remove(position)
+            #здесь возможно стоит сделать доп обработку
+            #------------------------------------------
             snake = Snake(position, Direction.Up)
             self.fill_cell(position, Cell.Snake)
             for i in range(1, SNAKE_SPAWN_SIZE - 1):
                 snake.body.append(Point(position.x, position.y - i))
                 self.fill_cell(Point(position.x, position.y - i), Cell.Snake)
-            self.snakes.append(snake)
+            self.snakes[len(self.snakes)] = snake
 
     def generate_food(self, count: int = 1) -> None:
         empty_cells = []
@@ -63,9 +70,9 @@ class Game:
             empty_cells.remove(point)
 
     def generate_walls(self) -> None:
-        straight_wall_count = randrange(10)
-        square_wall_count = randrange(5)
-        single_wall_count = randrange(15)
+        square_wall_count = randrange(SQUARE_WALL_COUNT_MAX)
+        straight_wall_count = randrange(STRAIGHT_WALL_COUNT_MAX)
+        single_wall_count = randrange(SINGLE_WALL_COUNT_MAX)
         for i in range(straight_wall_count):
             self.generate_straight_wall(WALL_SIZE)
         for i in range(square_wall_count):
@@ -94,7 +101,7 @@ class Game:
                 self.fill_cell(Point(position.x, position.y + i), Cell.Wall)
 
     def update(self):
-        for snake in self.snakes:
+        for snake in self.snakes.values():
             self.move_snake(snake)
 
     def get_cell(self, point: Point) -> Cell:
@@ -137,5 +144,5 @@ class Game:
         result = []
         for i in range(MAP_SIZE):
             for j in range(MAP_SIZE):
-                result.append(self.map[i][j]._value_)
+                result.append(self.map[i][j].value)
         return bytes(result)
