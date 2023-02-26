@@ -30,7 +30,6 @@ class Snake:
     def change_move(self, new_direction):
         self.direction = new_direction
 
-
     def kill(self):
         self.alive = False
 
