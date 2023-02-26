@@ -1,6 +1,6 @@
 from enum import Enum
 from point import Point
-from snake import Snake
+from snake import Snake, Direction
 import time
 from random import randrange
 
@@ -15,17 +15,41 @@ class Cell(Enum):
 MAP_SIZE = 30
 WALL_SIZE = 5
 FOOD_COUNT = 10
+SNAKE_SPAWN_SIZE = 4
 
 
 class Game:
-    def __init__(self, snakes: list[Snake]):
+    def __init__(self, snakes_count: int):
         self.map = [[Cell.Empty for _ in range(MAP_SIZE)] for _ in range(MAP_SIZE)]
-        self.snakes = snakes
+        self.snakes = []
+        self.snakes_count = snakes_count
 
     def start(self):
         self.generate_walls()
+        self.spawn_snakes()
         self.generate_food(FOOD_COUNT)
-        pass
+
+    def spawn_snakes(self):
+        spawn_positions = []
+        for i in range(MAP_SIZE):
+            count = 0
+            for j in range(MAP_SIZE):
+                if self.is_empty(Point(i, j)):
+                    count += 1
+                else:
+                    count = 0
+                if count == SNAKE_SPAWN_SIZE + 1:
+                    spawn_positions.append(Point(i, j))
+                    count = 0
+        for k in range(self.snakes_count):
+            position = spawn_positions[randrange(len(spawn_positions))]
+            spawn_positions.remove(position)
+            snake = Snake(position, Direction.Up)
+            self.fill_cell(position, Cell.Snake)
+            for i in range(1, SNAKE_SPAWN_SIZE - 1):
+                snake.body.append(Point(position.x, position.y - i))
+                self.fill_cell(Point(position.x, position.y - i), Cell.Snake)
+            self.snakes.append(snake)
 
     def generate_food(self, count: int = 1) -> None:
         empty_cells = []
@@ -76,6 +100,9 @@ class Game:
     def get_cell(self, point: Point) -> Cell:
         return self.map[point.x][point.y]
 
+    def is_empty(self, point: Point) -> bool:
+        return self.get_cell(point) == Cell.Empty
+
     def fill_cell(self, point: Point, cell: Cell):
         self.map[point.x][point.y] = cell
 
@@ -83,14 +110,12 @@ class Game:
         next_point = snake.get_next_point()
         match self.get_cell(next_point):
             case Cell.Empty:
-                snake.body.insert(0, next_point)
+                snake.body.append(next_point)
                 self.fill_cell(next_point, Cell.Snake)
-                self.move_snake(snake)
                 self.fill_cell(snake.body.pop(), Cell.Empty)
             case Cell.Food:
-                snake.body.insert(0, next_point)
+                snake.body.append(next_point)
                 self.fill_cell(next_point, Cell.Snake)
-                self.move_snake(snake)
                 self.generate_food()
             case _:
                 self.delete_snake(snake)
@@ -112,15 +137,5 @@ class Game:
         result = []
         for i in range(MAP_SIZE):
             for j in range(MAP_SIZE):
-                match self.map[i][j].value:
-                    case Cell.Empty:
-                        result.append(0)
-                    case Cell.Food:
-                        result.append(1)
-                    case Cell.Snake:
-                        result.append(2)
-                    case Cell.Wall:
-                        result.append(3)
-                    case _:
-                        raise Exception("Undefined cell type")
+                result.append(self.map[i][j]._value_)
         return bytes(result)
