@@ -1,7 +1,7 @@
 from enum import Enum
-from player import Player
 from point import Point
 from snake import Snake
+from threading import Timer
 
 
 class Cell(Enum):
@@ -11,36 +11,47 @@ class Cell(Enum):
     Wall = 3
 
 
+MAP_SIZE = 30
+
+
 class Game:
-    def __init__(self, map: list[Cell, Cell], players: list[Player]):
-        self.map = map
-        self.players = players
+    def __init__(self, snakes: list[Snake]):
+        self.map = [[Cell.Empty for _ in range(MAP_SIZE)] for _ in range(MAP_SIZE)]
+        self.snakes = snakes
+        self.timer = Timer()
+
+    def start(self):
+
+        pass
 
     def next(self):
-        for player in self.players:
-            snake = player.snake
-            new_point = snake.get_next_point()
-            match self.map[new_point.x][new_point.y]:
-                case Cell.Empty:
-                    snake.move()
-                case Cell.Food:
-                    snake.move(is_food=True)
-                case _:
-                    self.delete_snake(snake)
-                    snake.kill()
+        for snake in self.snakes:
+            self.move_snake(snake)
 
-    def clear_cell(self, point: Point):
-        self.map[point.x][point.y] = Cell.Empty
+    def get_cell(self, point: Point) -> Cell:
+        return self.map[point.x][point.y]
 
-    def move_snake(self, snake: Snake, is_food=False):
-        next_step = self.get_next_point()
-        self.body.insert(0, next_step)
-        if is_food:
-            self.body.pop()
+    def fill_cell(self, point: Point, cell: Cell):
+        self.map[point.x][point.y] = cell
 
+    def move_snake(self, snake: Snake):
+        next_point = snake.get_next_point()
+        match self.get_cell(next_point):
+            case Cell.Empty:
+                snake.body.insert(0, next_point)
+                self.fill_cell(next_point, Cell.Snake)
+                self.move_snake(snake)
+                self.fill_cell(snake.body.pop(), Cell.Empty)
+            case Cell.Food:
+                snake.body.insert(0, next_point)
+                self.fill_cell(next_point, Cell.Snake)
+                self.move_snake(snake)
+            case _:
+                self.delete_snake(snake)
+                snake.kill()
 
     def delete_snake(self, snake: Snake):
         for point in snake.body:
-            self.clear_cell(point)
+            self.fill_cell(point, Cell.Empty)
 
 
