@@ -1,7 +1,7 @@
 from enum import Enum
 from point import Point
 from snake import Snake
-from threading import Timer
+import time
 from random import randrange
 
 
@@ -13,16 +13,18 @@ class Cell(Enum):
 
 
 MAP_SIZE = 30
+WALL_SIZE = 5
+FOOD_COUNT = 10
 
 
 class Game:
     def __init__(self, snakes: list[Snake]):
         self.map = [[Cell.Empty for _ in range(MAP_SIZE)] for _ in range(MAP_SIZE)]
         self.snakes = snakes
-        self.timer = Timer()
 
     def start(self):
-
+        self.generate_walls()
+        self.generate_food(FOOD_COUNT)
         pass
 
     def generate_food(self, count: int = 1) -> None:
@@ -36,7 +38,38 @@ class Game:
             self.fill_cell(point, Cell.Food)
             empty_cells.remove(point)
 
-    def next(self):
+    def generate_walls(self) -> None:
+        straight_wall_count = randrange(10)
+        square_wall_count = randrange(5)
+        single_wall_count = randrange(15)
+        for i in range(straight_wall_count):
+            self.generate_straight_wall(WALL_SIZE)
+        for i in range(square_wall_count):
+            self.generate_square_wall(WALL_SIZE)
+        for i in range(single_wall_count):
+            self.generate_single_wall()
+
+    def generate_single_wall(self):
+        position = Point(randrange(MAP_SIZE), randrange(MAP_SIZE))
+        self.fill_cell(position, Cell.Wall)
+
+    def generate_square_wall(self, size: int) -> None:
+        position = Point(randrange(MAP_SIZE - size + 1), randrange(MAP_SIZE - size + 1))
+        for i in range(size):
+            for j in range(size):
+                self.fill_cell(Point(position.x + i, position.y + j), Cell.Wall)
+
+    def generate_straight_wall(self, size: int):
+        if randrange(2):
+            position = Point(randrange(MAP_SIZE - size + 1), randrange(MAP_SIZE))
+            for i in range(size):
+                self.fill_cell(Point(position.x + i, position.y), Cell.Wall)
+        else:
+            position = Point(randrange(MAP_SIZE), randrange(MAP_SIZE - size + 1))
+            for i in range(size):
+                self.fill_cell(Point(position.x, position.y + i), Cell.Wall)
+
+    def update(self):
         for snake in self.snakes:
             self.move_snake(snake)
 
@@ -58,6 +91,7 @@ class Game:
                 snake.body.insert(0, next_point)
                 self.fill_cell(next_point, Cell.Snake)
                 self.move_snake(snake)
+                self.generate_food()
             case _:
                 self.delete_snake(snake)
                 snake.kill()
@@ -65,5 +99,13 @@ class Game:
     def delete_snake(self, snake: Snake):
         for point in snake.body:
             self.fill_cell(point, Cell.Empty)
+
+    def map_to_string(self) -> str:
+        result = ""
+        for i in range(MAP_SIZE):
+            for j in range(MAP_SIZE):
+                result += str(self.map[i][j].value)
+            result += "\n"
+        return result
 
 
