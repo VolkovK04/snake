@@ -2,7 +2,8 @@ from enum import Enum
 from point import Point
 from snake import Snake
 from threading import Timer
-import random
+from random import randrange
+
 
 class Cell(Enum):
     Empty = 0
@@ -18,7 +19,11 @@ class Game:
     def __init__(self, snakes: list[Snake]):
         self.map = [[Cell.Empty for _ in range(MAP_SIZE)] for _ in range(MAP_SIZE)]
         self.snakes = snakes
-        self.timer = Timer(function=self.update, interval=1)
+        self.timer = Timer()
+
+    def start(self):
+
+        pass
 
     def generate_food(self, count: int = 1) -> None:
         empty_cells = []
@@ -27,11 +32,11 @@ class Game:
                 if self.map[i][j] == Cell.Empty:
                     empty_cells.append(Point(i, j))
         for i in range(count):
-            point = empty_cells[random.randint(len(empty_cells))]
+            point = empty_cells[randrange(len(empty_cells))]
             self.fill_cell(point, Cell.Food)
             empty_cells.remove(point)
 
-    def update(self):
+    def next(self):
         for snake in self.snakes:
             self.move_snake(snake)
 
