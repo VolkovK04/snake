@@ -18,11 +18,7 @@ class Game:
     def __init__(self, snakes: list[Snake]):
         self.map = [[Cell.Empty for _ in range(MAP_SIZE)] for _ in range(MAP_SIZE)]
         self.snakes = snakes
-        self.timer = Timer()
-
-    def start(self):
-
-        pass
+        self.timer = Timer(function=self.update, interval=1)
 
     def generate_food(self, count: int = 1) -> None:
         empty_cells = []
@@ -35,7 +31,7 @@ class Game:
             self.fill_cell(point, Cell.Food)
             empty_cells.remove(point)
 
-    def next(self):
+    def update(self):
         for snake in self.snakes:
             self.move_snake(snake)
 

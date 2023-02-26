@@ -1,5 +1,3 @@
-import graphics
-
 
 class Food:
 

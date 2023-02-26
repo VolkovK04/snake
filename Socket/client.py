@@ -1,15 +1,27 @@
-import socket 
+import socket as sock
 
-HOST = input("Server host: ")
-PORT = int(input("Server port: "))
+class Client:
+    def __init__(self, server_host, server_port) -> None:
+        self.s = sock.socket(sock.AF_INET, sock.SOCK_STREAM)
+        self._Server_host = server_host
+        self._Server_port = server_port
+        
+    def connect(self):
+        self.s.connect((self._Server_host, self._Server_port))
 
-conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-conn.connect((HOST, PORT))
+    def on_snake_change_direction(self):
+        data_to_send = "snake moved".encode("utf-8")
+        self.s.send(data_to_send)
 
-while True:    
-    data = input("Type the message to send: ")    
-    data_bytes = data.encode()  # (str to bytes)    
-    conn.sendall(data_bytes)  # Send    
-    data_bytes = conn.recv(1024)  # Receive    
-    data = data_bytes.decode()  # (bytes to str)    
-    print("Received:", data)
+    def handle_data(self):
+        data = self.s.recv(1024).decode("utf-8") #game_field
+        #----------------------
+        #что-то делаем с данными
+        #----------------------
+        print("Data recieved:", data)
+
+
+
+
+
+
