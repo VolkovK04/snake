@@ -108,4 +108,19 @@ class Game:
             result += "\n"
         return result
 
-
+    def map_to_bytes(self) -> bytes:
+        result = []
+        for i in range(MAP_SIZE):
+            for j in range(MAP_SIZE):
+                match self.map[i][j].value:
+                    case Cell.Empty:
+                        result.append(0)
+                    case Cell.Food:
+                        result.append(1)
+                    case Cell.Snake:
+                        result.append(2)
+                    case Cell.Wall:
+                        result.append(3)
+                    case _:
+                        raise Exception("Undefined cell type")
+        return bytes(result)
