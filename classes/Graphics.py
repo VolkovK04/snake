@@ -83,8 +83,4 @@ class SimpleGraphic:
 
 new = SimpleGraphic(new_map1)
 new.draw()
-new.new_map = new_map2
-new.draw()
-
-
-glutMainLoop()
+glutMainLoop()  # That need for keeping window open and this is problem for animation
