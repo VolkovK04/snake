@@ -108,7 +108,7 @@ class Game:
             result += "\n"
         return result
 
-    def map_to_byte_array(self) -> bytes:
+    def map_to_bytes(self) -> bytes:
         result = []
         for i in range(MAP_SIZE):
             for j in range(MAP_SIZE):
