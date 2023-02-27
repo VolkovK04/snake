@@ -83,6 +83,21 @@ class Client:
             self.detect_direction(key)
             time.sleep(FRAME_TIME)
             
+    def print_map(self):
+        for i in range(self.map_size):
+            line = ""
+            for j in range(self.map_size):
+                match self.map[i][j]:
+                    case Cell.Empty:
+                        line += " "
+                    case Cell.Snake:
+                        line += "0"
+                    case Cell.Wall:
+                        line += "#"
+                    case Cell.Food:
+                        line += "@"
+            print(line)
+            
 
 
 if __name__ == "__main__":
