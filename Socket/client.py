@@ -23,6 +23,7 @@ class Cell(Enum):
 
 
 
+
 class Client:
     def __init__(self, server_host, server_port) -> None:
         self.s = sock.socket(sock.AF_INET, sock.SOCK_STREAM)
