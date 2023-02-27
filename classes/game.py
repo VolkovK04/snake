@@ -1,7 +1,6 @@
 from enum import Enum
-from point import Point
-from snake import Snake, Direction
-import time
+from classes.point import Point
+from classes.snake import Snake, Direction
 from random import randrange
 
 
@@ -26,6 +25,7 @@ class Game:
     def __init__(self, snakes_count: int):
         self.snakes: dict[int, Snake] = {}
         self.snakes_count = snakes_count
+        self.map = []
 
     def start(self):
         self.map = [[Cell.Empty for _ in range(MAP_SIZE)] for _ in range(MAP_SIZE)]
@@ -112,13 +112,31 @@ class Game:
     def fill_cell(self, point: Point, cell: Cell):
         self.map[point.x][point.y] = cell
 
+    def get_next_point(self, snake: Snake):
+        head = snake.body[-1]
+        match snake.direction:
+            case Direction.Up:
+                return Point(head.x, (head.y - 1) % MAP_SIZE)
+            case Direction.Right:
+                return Point((head.x + 1) % MAP_SIZE, head.y)
+            case Direction.Down:
+                return Point(head.x, (head.y + 1) % MAP_SIZE)
+            case Direction.Left:
+                return Point((head.x - 1) % MAP_SIZE, head.y)
+        return head
+
     def move_snake(self, snake: Snake):
-        next_point = snake.get_next_point()
+        next_point = self.get_next_point(snake)
+        print(snake.body[-1])
+        print(next_point)
+        print(snake.direction)
+        print(self.get_cell(next_point))
         match self.get_cell(next_point):
             case Cell.Empty:
                 snake.body.append(next_point)
                 self.fill_cell(next_point, Cell.Snake)
-                self.fill_cell(snake.body.pop(), Cell.Empty)
+                self.fill_cell(snake.body[0], Cell.Empty)
+                snake.body.pop(0)
             case Cell.Food:
                 snake.body.append(next_point)
                 self.fill_cell(next_point, Cell.Snake)
