@@ -4,6 +4,8 @@ from enum import Enum
 import time
 from graphics import GUI
 
+DEBUG = True
+
 MAX_SIZE_BYTES = 1024
 ID_MAX_LEN = 2
 
@@ -43,11 +45,14 @@ class Client:
 
     def handle_server(self):
         data = self.s.recv(MAX_SIZE_BYTES)
+        print(f"Data from server recieved: data = {data}")
         if len(data) <= ID_MAX_LEN:
             id = int(data.decode("utf-8"))
             self._Id = id
+            print(f"Client id setup: id = {self._Id}") if DEBUG else None
         else:
-            map = list() #game_field
+            map = list(data) #game_field
+            print(f"Game_field recieved = {map}") if DEBUG else None
             self.map_size = int(len(map)**0.5)
 
             self.map = [[map[i * self.map_size + j] for j in range(self.map_size)] for i in range(self.map_size)]
@@ -56,7 +61,6 @@ class Client:
     def setup(self):
         self.connect()
         self.handle_server()
-        self.gui.draw()
     
     def detect_direction(self, key):
         match key:
@@ -73,7 +77,7 @@ class Client:
         self.setup()
         while not STOP_CLIENT:
             self.handle_server()
-            print("drawing")
+            print("drawing") if DEBUG else None
             self.gui.draw()
             key = keyboard.read_key()
             self.detect_direction(key)
