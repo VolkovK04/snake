@@ -1,6 +1,5 @@
 from enum import Enum
 from point import Point
-from player import Player
 from snake import Snake, Direction
 import time
 from random import randrange

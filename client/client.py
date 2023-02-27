@@ -2,6 +2,7 @@ import socket as sock
 import keyboard
 from enum import Enum
 import time
+from graphics import GUI
 
 MAX_SIZE_BYTES = 1024
 ID_MAX_LEN = 2
@@ -30,9 +31,6 @@ class Client:
         self._Server_host = server_host
         self._Server_port = server_port
 
-
-        #self.map = [] #game_field 
-        #self.gui = GUI()
         
     def connect(self):
         self.s.connect((self._Server_host, self._Server_port))
@@ -44,20 +42,21 @@ class Client:
     def handle_server(self):
         data = self.s.recv(MAX_SIZE_BYTES)
         if len(data) <= ID_MAX_LEN:
-            id = int(data.decode("uts-8"))
+            id = int(data.decode("utf-8"))
             self._Id = id
         else:
             map = list() #game_field
-            map_size = int(len(map)**0.5)
+            self.map_size = int(len(map)**0.5)
 
-            self.map = [[map[i * map_size + j] for j in range(map_size)] for i in range(map_size)]
+            self.map = [[map[i * self.map_size + j] for j in range(self.map_size)] for i in range(self.map_size)]
+            self.gui = GUI(self.map)
 
     def setup(self):
         self.connect()
         self.handle_server()
         #self.gui.draw(self.map)
     
-    def detect_direction(self, key: keyboard._Key):
+    def detect_direction(self, key):
         match key:
             case "up":
                 self.on_snake_change_direction(Direction.Up)
@@ -68,18 +67,23 @@ class Client:
             case "left":
                 self.on_snake_change_direction(Direction.Left)
 
-    def run(self):
+    def run_client(self):
         self.setup()
         while not STOP_CLIENT:
             self.handle_server()
-            #self.gui.draw(self.map)
+            self.gui.draw()
             key = keyboard.read_key()
             self.detect_direction(key)
             time.sleep(FRAME_TIME)
             
 
 
+if __name__ == "__main__":
+    HOST = input("HOST: ")
+    PORT = 9090
 
+    client = Client(HOST, PORT)
+    client.run_client()
 
 
 
