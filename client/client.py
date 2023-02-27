@@ -31,6 +31,8 @@ class Client:
         self._Server_host = server_host
         self._Server_port = server_port
 
+        self.gui = GUI([])
+
         
     def connect(self):
         self.s.connect((self._Server_host, self._Server_port))
@@ -49,12 +51,12 @@ class Client:
             self.map_size = int(len(map)**0.5)
 
             self.map = [[map[i * self.map_size + j] for j in range(self.map_size)] for i in range(self.map_size)]
-            self.gui = GUI(self.map)
+            self.gui.new_map = self.map
 
     def setup(self):
         self.connect()
         self.handle_server()
-        #self.gui.draw(self.map)
+        self.gui.draw()
     
     def detect_direction(self, key):
         match key:
@@ -71,6 +73,7 @@ class Client:
         self.setup()
         while not STOP_CLIENT:
             self.handle_server()
+            print("drawing")
             self.gui.draw()
             key = keyboard.read_key()
             self.detect_direction(key)

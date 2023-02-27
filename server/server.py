@@ -6,10 +6,11 @@ import sys, os
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..\\classes"))
 from game import Game
 
+DEBUG = True
 
 MAX_CLIENTS = 10
 
-CONNECTION_AWAITING = 30
+CONNECTION_AWAITING = 20
 FRAME_TIME = 1 #second
 
 STOP_SERVER = False
@@ -75,6 +76,9 @@ class Server:
 
     def send_game_field(self):
         data = self.game.map_to_bytes()
+
+        print(f"call send_game_field: data = {data}") if DEBUG else None
+
         for connection in self.active_connections:
             clientsocket, addr = connection
             clientsocket.sendall(data)

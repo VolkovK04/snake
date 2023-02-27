@@ -43,12 +43,26 @@ class GUI:
     # Init map
     def __init__(self, new_map):
         self.new_map = new_map
+
+
         glutInit()
+        glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB) # type: ignore
+        glutInitWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT)
+        glutInitWindowPosition(100, 100)
+        glutCreateWindow("Snake")
+        
+        glPointSize(GRID_SIZE)
+        glutDisplayFunc(self.display)
+        glutIdleFunc(self.display)
+        glClearColor(0.93, 0.99, 0.43, 1.0)
+        gluOrtho2D(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
+        glutSwapBuffers()
 
     # Func that define scene to draw
     def display(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT) # type: ignore
         glBegin(GL_POINTS)
+        print(self.new_map)
         for i in range(game.MAP_SIZE * 2):
             for j in range(game.MAP_SIZE * 2):
                 match self.new_map[i // 2][j // 2]:  # Multiplication by 2 and division need for more tight location
@@ -70,17 +84,8 @@ class GUI:
     def draw(self):
         # Init GLUT
         # Init window
-        glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB) # type: ignore
-        glutInitWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT)
-        glutInitWindowPosition(100, 100)
-        glutCreateWindow("Snake")
-        
-        glPointSize(GRID_SIZE)
-        glutDisplayFunc(self.display)
-        glutIdleFunc(self.display)
-        glClearColor(0.93, 0.99, 0.43, 1.0)
-        gluOrtho2D(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
-        glutSwapBuffers()
+        #glutMainLoop()
+        self.display()
 
 
 # new = GUI(new_map1)
