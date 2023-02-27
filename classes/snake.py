@@ -1,5 +1,5 @@
 from enum import Enum
-from point import Point
+from classes.point import Point
 
 
 class Direction(Enum):
@@ -15,20 +15,7 @@ class Snake:
         self.direction = move_direction
         self.alive = True
 
-    def get_next_point(self):
-        head = self.body[-1]
-        match self.direction:
-            case Direction.Up:
-                return Point(head.x, head.y - 1)
-            case Direction.Right:
-                return Point(head.x + 1, head.y)
-            case Direction.Down:
-                return Point(head.x, head.y + 1)
-            case Direction.Left:
-                return Point(head.x - 1, head.y)
-        return head
-            
-    def change_move(self, new_direction):
+    def change_direction(self, new_direction):
         self.direction = new_direction
 
     def kill(self):
