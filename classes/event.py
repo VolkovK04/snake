@@ -1,14 +1,17 @@
+from typing import Callable
+
+
 class Event:
-    def __init__(self):
-        self.subscribers = []
+    def __init__(self) -> None:
+        self._subscribers = []
 
-    def bind(self, func):
-        self.subscribers.append(func)
+    def bind(self, action: Callable) -> None:
+        self._subscribers.append(action)
 
-    def unbind(self, func):
-        self.subscribers.remove(func)
+    def unbind(self, action: Callable) -> None:
+        self._subscribers.remove(action)
 
-    def start(self, *args, **kwargs):
-        for subscriber in self.subscribers:
+    def start(self, *args, **kwargs) -> None:
+        for subscriber in self._subscribers:
             subscriber(*args, **kwargs)
 

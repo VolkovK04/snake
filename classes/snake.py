@@ -1,24 +1,21 @@
-from enum import Enum
+from classes.direction import Direction
 from classes.point import Point
 
 
-class Direction(Enum):
-    Up = 0
-    Right = 1
-    Down = 2
-    Left = 3
-
-
 class Snake:
-    def __init__(self, point: Point, move_direction: Direction) -> None:
+    def __init__(self, point: Point, direction: Direction) -> None:
         self.body = [point]
-        self.direction = move_direction
+        self._direction = direction
         self.alive = True
 
-    def change_direction(self, new_direction):
-        self.direction = new_direction
+    @property
+    def direction(self) -> Direction:
+        return self._direction
 
-    def kill(self):
+    def change_direction(self, new_direction: Direction) -> None:
+        self._direction = new_direction
+
+    def kill(self) -> None:
         self.alive = False
 
     

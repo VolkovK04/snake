@@ -8,32 +8,32 @@ class Timer:
         self._interval = interval
         self.on_tick = Event()
         self._enabled = False
-        self.thread = Thread(target=self.main)
+        self.thread = Thread(target=self._main)
 
     @property
-    def enabled(self):
+    def enabled(self) -> bool:
         return self._enabled
 
     @enabled.setter
-    def enabled(self, value: bool):
+    def enabled(self, value: bool) -> None:
         self._enabled = value
 
     @property
-    def interval(self):
+    def interval(self) -> float:
         return self._interval
 
     @interval.setter
-    def interval(self, value: float):
+    def interval(self, value: float) -> None:
         self._interval = value
 
-    def start(self):
+    def start(self) -> None:
         self._enabled = True
         self.thread.start()
 
-    def stop(self):
+    def stop(self) -> None:
         self._enabled = False
 
-    def main(self):
+    def _main(self) -> None:
         while self._enabled:
             self.on_tick.start()
             sleep(self.interval)
