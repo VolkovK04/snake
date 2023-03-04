@@ -1,6 +1,6 @@
 from time import sleep
 from threading import Thread
-from event import Event
+from classes.event import Event
 
 
 class Timer:

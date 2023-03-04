@@ -2,21 +2,35 @@ from classes.point import Point
 from classes.snake import Snake, Direction
 from classes.cell import Cell
 from classes.gameRules import GameRules
+from classes.timer import Timer
+from server.server import Server
 from random import randrange
+from typing import Any
+
+
+FRAME_TIME = 0.1  # second
 
 
 class Game:
-    def __init__(self, snakes_count: int) -> None:
-        self.snakes: dict[int, Snake] = {}
+    def __init__(self, snakes_count: int, server: Server) -> None:
+        self.snakes: dict[Any, Snake] = {}
         self.snakes_count = snakes_count
         self.map = []
         self.game_rules = GameRules()
+        self.updater = Timer(FRAME_TIME)
+        self.updater.on_tick.bind(self.update)
+        self.server = server
 
     def start(self) -> None:
         self.map = [[Cell.Empty for _ in range(self.game_rules.map_size)] for _ in range(self.game_rules.map_size)]
         self.generate_walls()
         self.spawn_snakes()
         self.generate_food(self.game_rules.all_food_count)
+        self.updater.start()
+        self.server.message_received.bind(self.get_command)
+
+    def get_command(self, client_socket, address, data):
+        self.snakes[(client_socket, address)].change_direction(Direction(int(data)))
 
     def spawn_snakes(self) -> None:
         spawn_positions = []
@@ -30,7 +44,7 @@ class Game:
                 if count == self.game_rules.snake_spawn_size + 1:
                     spawn_positions.append(Point(i, j))
                     count = 0
-        for k in range(self.snakes_count):
+        for connection in self.server.all_connections:
             position = spawn_positions[randrange(len(spawn_positions))]
             spawn_positions.remove(position)
             #здесь возможно стоит сделать доп обработку
@@ -40,7 +54,7 @@ class Game:
             for i in range(1, self.game_rules.snake_spawn_size):
                 snake.body.append(Point(position.x, position.y - i))
                 self.fill_cell(Point(position.x, position.y - i), Cell.Snake)
-            self.snakes[len(self.snakes)] = snake
+            self.snakes[connection] = snake
 
     def generate_food(self, count: int = 1) -> None:
         empty_cells = []
@@ -87,6 +101,7 @@ class Game:
     def update(self) -> None:
         for snake in self.snakes.values():
             self.move_snake(snake)
+        self.server.send_message_for_all(self.map_to_bytes())
 
     def get_cell(self, point: Point) -> Cell:
         return self.map[point.x][point.y]
